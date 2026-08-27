@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
+import { useState } from "react";
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -32,7 +33,31 @@ function ThemeToggle() {
   );
 }
 
+const tools = [
+  {
+    name: "Grid Crop",
+    description: "Crop images using a grid overlay and export sections.",
+    href: "/grid-crop",
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" className="w-10 h-10" stroke="currentColor" strokeWidth="2">
+        <rect x="4" y="4" width="32" height="32" rx="2" />
+        <line x1="4" y1="15" x2="36" y2="15" />
+        <line x1="4" y1="26" x2="36" y2="26" />
+        <line x1="15" y1="4" x2="15" y2="36" />
+        <line x1="26" y1="4" x2="26" y2="36" />
+      </svg>
+    ),
+  },
+];
+
 export default function Home() {
+  const [search, setSearch] = useState("");
+  const filtered = tools.filter(
+    (t) =>
+      t.name.toLowerCase().includes(search.toLowerCase()) ||
+      t.description.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col flex-1 bg-background">
       <div className="w-full max-w-5xl mx-auto px-6 py-10">
@@ -54,7 +79,8 @@ export default function Home() {
               <input
                 type="text"
                 placeholder="Search tools..."
-                readOnly
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-full bg-input-bg border border-input-border text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all placeholder:text-muted"
               />
             </div>
@@ -64,24 +90,19 @@ export default function Home() {
 
         {/* Tool Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          <Link href="/grid-crop">
-            <div className="rounded-xl border border-card-border bg-card-bg p-6 transition-all hover:shadow-md hover:border-foreground/20 cursor-pointer">
-              <div className="mb-3 text-foreground">
-                <svg viewBox="0 0 40 40" fill="none" className="w-10 h-10" stroke="currentColor" strokeWidth="2">
-                  <rect x="4" y="4" width="32" height="32" rx="2" />
-                  <line x1="4" y1="15" x2="36" y2="15" />
-                  <line x1="4" y1="26" x2="36" y2="26" />
-                  <line x1="15" y1="4" x2="15" y2="36" />
-                  <line x1="26" y1="4" x2="26" y2="36" />
-                </svg>
+          {filtered.map((tool) => (
+            <Link key={tool.name} href={tool.href}>
+              <div className="rounded-xl border border-card-border bg-card-bg p-6 transition-all hover:shadow-md hover:border-foreground/20 cursor-pointer">
+                <div className="mb-3 text-foreground">{tool.icon}</div>
+                <h3 className="text-lg font-semibold mb-1">{tool.name}</h3>
+                <p className="text-sm text-muted">{tool.description}</p>
               </div>
-              <h3 className="text-lg font-semibold mb-1">Grid Crop</h3>
-              <p className="text-sm text-muted">
-                Crop images using a grid overlay and export sections.
-              </p>
-            </div>
-          </Link>
+            </Link>
+          ))}
         </div>
+        {filtered.length === 0 && (
+          <p className="text-center py-20 text-muted">No tools found matching &quot;{search}&quot;</p>
+        )}
       </div>
     </div>
   );

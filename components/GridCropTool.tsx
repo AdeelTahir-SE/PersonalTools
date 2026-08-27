@@ -822,7 +822,7 @@ export default function GridCropTool() {
                     );
                   })}
 
-                  {/* Cell crosshairs + numbers (inside effective crop region) */}
+                  {/* Cell numbers (inside effective crop region) */}
                   {(() => {
                     const cells: React.ReactNode[] = [];
                     let num = 1;
@@ -840,35 +840,10 @@ export default function GridCropTool() {
                               transform: "translate(-50%, -50%)",
                             }}
                           >
-                            <div
-                              className="absolute"
-                              style={{
-                                width: 1,
-                                height: 14,
-                                left: "50%",
-                                top: "50%",
-                                transform: "translate(-50%, -50%)",
-                                backgroundColor: "#fff",
-                                boxShadow: "0 0 0 0.5px rgba(0,0,0,0.6)",
-                              }}
-                            />
-                            <div
-                              className="absolute"
-                              style={{
-                                width: 14,
-                                height: 1,
-                                left: "50%",
-                                top: "50%",
-                                transform: "translate(-50%, -50%)",
-                                backgroundColor: "#fff",
-                                boxShadow: "0 0 0 0.5px rgba(0,0,0,0.6)",
-                              }}
-                            />
                             <span
-                              className="relative block text-center text-white text-[11px] font-bold font-mono"
+                              className="block text-center text-white text-[11px] font-bold font-mono"
                               style={{
                                 textShadow: "0 0 4px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,1)",
-                                marginTop: 12,
                               }}
                             >
                               {num}

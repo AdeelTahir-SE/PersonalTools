@@ -6,7 +6,7 @@
 
 <p align="center">
   Free, browser-based utilities for developers and designers.<br/>
-  All processing happens locally in your browser — <strong>your images never leave your machine</strong>.
+  All processing happens locally in your browser 
 </p>
 
 <p align="center">
@@ -36,6 +36,8 @@ Automatically detect and extract icons from an image.
 - Also works on opaque images (background color is auto-sampled from the corners)
 - Tune detection with **merge distance**, **min icon size**, and **padding** sliders — results update in real time
 - Click any detected icon (on the image or in the preview list) to save it as PNG, or download all at once
+
+### Many More — [`/`](https://personal-tools.vercel.app/)
 
 ## Highlights
 

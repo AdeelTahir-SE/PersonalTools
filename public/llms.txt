@@ -1,0 +1,17 @@
+# Personal Tools
+
+> Free, browser-based utilities for developers and designers. All tools run 100% locally in the browser — images and data are never uploaded to a server. No sign-up, no ads, no cost.
+
+Site: https://personal-tools.vercel.app
+Source: https://github.com/AdeelTahir-SE/PersonalTools
+
+## Tools
+
+- [Grid Crop](https://personal-tools.vercel.app/grid-crop): Split a grid image into individual sections. Upload an image, drag horizontal and vertical grid lines anywhere, optionally set a crop region, and export every cell as a separate PNG. Ideal for extracting individual icons from AI-generated icon grids (e.g. 2×3 or 3×3 layouts from ChatGPT or Midjourney) or slicing sprite sheets.
+- [Icon Extract](https://personal-tools.vercel.app/icon-extract): Automatically detect and extract icons from an image. Upload an image with a transparent background and each icon is found via alpha-channel connected-component analysis. Adjust merge distance, minimum size, and padding, then click any detected icon to save it as an individual PNG, or download all at once. Also works on opaque images by auto-sampling the background color.
+
+## Notes
+
+- All processing happens client-side with the HTML Canvas API; no image ever leaves the user's machine.
+- Both tools support light and dark themes and export PNG files with transparency preserved.
+- The tools are free to use and require no account.

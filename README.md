@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <img src="public/logo.png" alt="Personal Tools logo" width="96" />
+</p>
+
+<h1 align="center">Personal Tools</h1>
+
+<p align="center">
+  Free, browser-based utilities for developers and designers.<br/>
+  All processing happens locally in your browser — <strong>your images never leave your machine</strong>.
+</p>
+
+<p align="center">
+  <a href="https://personal-tools.vercel.app"><strong>personal-tools.vercel.app</strong></a>
+</p>
+
+---
+
+## Tools
+
+### 🔲 Grid Crop — [`/grid-crop`](https://personal-tools.vercel.app/grid-crop)
+
+Split a grid image into individual sections.
+
+- Drag horizontal and vertical grid lines anywhere on the image, or type exact positions
+- Optionally set a crop region — only the area inside it is exported (WYSIWYG)
+- Live preview of every section with pixel sizes
+- Export all cells as individual PNGs, auto-named `image_1.png` … `image_n.png`
+
+Perfect for extracting icons from AI-generated icon grids (e.g. 2×3 or 3×3 layouts from ChatGPT / Midjourney) or slicing sprite sheets.
+
+### ✂️ Icon Extract — [`/icon-extract`](https://personal-tools.vercel.app/icon-extract)
+
+Automatically detect and extract icons from an image.
+
+- Upload an image with a transparent background — icons are found automatically via alpha-channel connected-component analysis
+- Also works on opaque images (background color is auto-sampled from the corners)
+- Tune detection with **merge distance**, **min icon size**, and **padding** sliders — results update in real time
+- Click any detected icon (on the image or in the preview list) to save it as PNG, or download all at once
+
+## Highlights
+
+- 🔒 **Private by design** — everything runs client-side with the Canvas API; no uploads, no server, no tracking
+- 🌗 Light / dark theme with system preference detection
+- ⚡ Real-time, debounced previews — no "apply" button needed
+- 🔍 SEO-ready: per-tool metadata, JSON-LD structured data, `sitemap.xml`, `robots.txt`, and `llms.txt`
+
+## Tech Stack
+
+| | |
+|---|---|
+| Framework | [Next.js 16](https://nextjs.org) (App Router, Turbopack) |
+| UI | [React 19](https://react.dev) + [Tailwind CSS v4](https://tailwindcss.com) |
+| Language | TypeScript |
+| Image processing | HTML Canvas API (fully client-side) |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# install dependencies
+npm install
+
+# start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Other scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build   # production build
+npm run start   # serve the production build
+npm run lint    # lint with ESLint
+```
 
-## Learn More
+### Configuration
 
-To learn more about Next.js, take a look at the following resources:
+| Env var | Default | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | `https://personal-tools.vercel.app` | Canonical site URL used in metadata, `sitemap.xml`, and `robots.txt` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+app/
+  page.tsx              # All Tools home page (searchable tool grid)
+  layout.tsx            # Root layout: theme, SEO metadata, JSON-LD, footer
+  grid-crop/page.tsx    # Grid Crop route + per-tool metadata
+  icon-extract/page.tsx # Icon Extract route + per-tool metadata
+  sitemap.ts            # /sitemap.xml
+  robots.ts             # /robots.txt
+components/
+  GridCropTool.tsx      # Grid Crop editor (draggable lines, crop region, export)
+  IconExtractTool.tsx   # Icon Extract editor (auto-detection, tuning, export)
+context/
+  ThemeContext.tsx      # Light/dark theme provider (localStorage + system pref)
+lib/
+  site.ts               # Site URL, name, and per-tool SEO registry
+public/
+  llms.txt              # Site description for AI assistants/crawlers
+```
 
-## Deploy on Vercel
+Adding a new tool: create `components/<Tool>.tsx` and `app/<slug>/page.tsx`, add a card in `app/page.tsx`, and register it in `lib/site.ts` — the sitemap and structured data pick it up automatically.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Author
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Adeel Tahir** — [github.com/AdeelTahir-SE](https://github.com/AdeelTahir-SE)

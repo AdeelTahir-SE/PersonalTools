@@ -48,6 +48,19 @@ const tools = [
       </svg>
     ),
   },
+  {
+    name: "Icon Extract",
+    description: "Automatically detect and extract individual icons from an image.",
+    href: "/icon-extract",
+    icon: (
+      <svg viewBox="0 0 40 40" fill="none" className="w-10 h-10" stroke="currentColor" strokeWidth="2">
+        <rect x="5" y="5" width="12" height="12" rx="2" />
+        <circle cx="29" cy="11" r="6" />
+        <path d="M5 35 L11 24 L17 35 Z" />
+        <rect x="23" y="23" width="12" height="12" rx="6" strokeDasharray="3 3" />
+      </svg>
+    ),
+  },
 ];
 
 export default function Home() {

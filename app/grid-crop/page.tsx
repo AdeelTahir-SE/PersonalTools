@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName,
     title: tool.title,
     description: tool.description,
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: tool.name }],
+    images: [{ url: "/logo.png", width: 327, height: 290, alt: tool.name }],
   },
   twitter: {
     card: "summary",

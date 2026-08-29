@@ -221,7 +221,12 @@ export default function IconExtractTool() {
   const [mergeGap, setMergeGap] = useState(12); // px: parts closer than this are one icon
   const [padding, setPadding] = useState(6); // px added around each icon
 
+  // Background removal
+  const [bgTolerance, setBgTolerance] = useState(40);
+  const [originalSrc, setOriginalSrc] = useState<string | null>(null);
+
   const [naturalSize, setNaturalSize] = useState({ w: 0, h: 0 });
+  const [loadTick, setLoadTick] = useState(0);
 
   const imgRef = useRef<HTMLImageElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -234,6 +239,7 @@ export default function IconExtractTool() {
     reader.onload = (e) => {
       setImageSrc(e.target?.result as string);
       setIcons([]);
+      setOriginalSrc(null);
       setNaturalSize({ w: 0, h: 0 });
     };
     reader.readAsDataURL(file);
@@ -243,7 +249,88 @@ export default function IconExtractTool() {
     const img = imgRef.current;
     if (!img) return;
     setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
+    setLoadTick((t) => t + 1);
   }, []);
+
+  // --- Background removal (flood fill from the borders) ---
+  const removeBackground = useCallback(() => {
+    const img = imgRef.current;
+    if (!img || !img.naturalWidth || !imageSrc) return;
+    const nw = img.naturalWidth;
+    const nh = img.naturalHeight;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = nw;
+    canvas.height = nh;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, nw, nh);
+    const data = imageData.data;
+
+    // Background color from the four corners
+    const corners = [0, nw - 1, (nh - 1) * nw, nw * nh - 1];
+    let br = 0,
+      bg = 0,
+      bb = 0;
+    for (const c of corners) {
+      br += data[c * 4];
+      bg += data[c * 4 + 1];
+      bb += data[c * 4 + 2];
+    }
+    br /= 4;
+    bg /= 4;
+    bb /= 4;
+    const tolSq = bgTolerance * bgTolerance;
+
+    const isBg = (p: number) => {
+      const dr = data[p * 4] - br;
+      const dg = data[p * 4 + 1] - bg;
+      const db = data[p * 4 + 2] - bb;
+      return dr * dr + dg * dg + db * db <= tolSq;
+    };
+
+    // Flood fill from the borders so same-colored pixels inside icons survive
+    const visited = new Uint8Array(nw * nh);
+    const stack = new Int32Array(nw * nh);
+    let sp = 0;
+    const push = (p: number) => {
+      if (!visited[p] && isBg(p)) {
+        visited[p] = 1;
+        stack[sp++] = p;
+      }
+    };
+    for (let x = 0; x < nw; x++) {
+      push(x);
+      push((nh - 1) * nw + x);
+    }
+    for (let y = 0; y < nh; y++) {
+      push(y * nw);
+      push(y * nw + nw - 1);
+    }
+
+    while (sp > 0) {
+      const p = stack[--sp];
+      const px = p % nw;
+      const py = (p / nw) | 0;
+      data[p * 4 + 3] = 0;
+      if (px > 0) push(p - 1);
+      if (px < nw - 1) push(p + 1);
+      if (py > 0) push(p - nw);
+      if (py < nh - 1) push(p + nw);
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    setOriginalSrc((prev) => prev ?? imageSrc);
+    setImageSrc(canvas.toDataURL("image/png"));
+    setIcons([]);
+  }, [imageSrc, bgTolerance]);
+
+  const restoreOriginal = useCallback(() => {
+    if (!originalSrc) return;
+    setImageSrc(originalSrc);
+    setOriginalSrc(null);
+    setIcons([]);
+  }, [originalSrc]);
 
   // --- Detection + extraction ---
   const detect = useCallback(() => {
@@ -338,7 +425,7 @@ export default function IconExtractTool() {
     if (!imageSrc || naturalSize.w === 0) return;
     const timer = setTimeout(detect, 250);
     return () => clearTimeout(timer);
-  }, [imageSrc, naturalSize.w, detect]);
+  }, [imageSrc, naturalSize.w, loadTick, detect]);
 
   const downloadIcon = useCallback((icon: DetectedIcon) => {
     const a = document.createElement("a");
@@ -359,6 +446,7 @@ export default function IconExtractTool() {
     setImageSrc(null);
     setImageFile(null);
     setIcons([]);
+    setOriginalSrc(null);
     setNaturalSize({ w: 0, h: 0 });
   }, []);
 
@@ -535,6 +623,41 @@ export default function IconExtractTool() {
                   ? "Icons found from non-transparent pixels."
                   : "No alpha channel — background color sampled from corners."}
               </p>
+
+              {!usedAlpha && (
+                <div className="mt-3 pt-3 border-t border-card-border">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] text-muted">Tolerance</label>
+                    <span className="text-[11px] font-mono">{bgTolerance}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={5}
+                    max={120}
+                    value={bgTolerance}
+                    onChange={(e) => setBgTolerance(Number(e.target.value))}
+                    className="w-full accent-foreground"
+                  />
+                  <button
+                    onClick={removeBackground}
+                    className="w-full mt-2 py-2 rounded-lg bg-foreground text-background font-semibold text-xs hover:opacity-85 transition-opacity cursor-pointer"
+                  >
+                    Remove Background
+                  </button>
+                  <p className="text-[10px] text-muted mt-1.5">
+                    Makes the background transparent before detection. Higher tolerance removes more.
+                  </p>
+                </div>
+              )}
+
+              {originalSrc && (
+                <button
+                  onClick={restoreOriginal}
+                  className="w-full mt-3 py-2 rounded-lg border border-card-border bg-background font-medium text-xs hover:bg-card-border transition-colors cursor-pointer"
+                >
+                  Restore Original
+                </button>
+              )}
             </div>
 
             <p className="text-[11px] text-muted px-1">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
 import { useState } from "react";
 
@@ -76,7 +77,17 @@ export default function Home() {
       <div className="w-full max-w-5xl mx-auto px-6 py-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold tracking-tight mr-6 shrink-0">All Tools</h1>
+          <h1 className="mr-6 shrink-0 flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Personal Tools"
+              width={327}
+              height={290}
+              priority
+              className="h-12 w-auto"
+            />
+            <span className="sr-only">Personal Tools — All Tools</span>
+          </h1>
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="relative flex-1">
               <svg
